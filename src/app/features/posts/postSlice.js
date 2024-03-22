@@ -7,6 +7,15 @@ const initialState = {
   error: null,
 };
 
+// {
+//   多个可能的状态枚举值
+//   status: 'idle' | 'loading' | 'succeeded' | 'failed',
+//   error: string | null
+// }
+
+// createAsyncThunk 接收 2 个参数:
+// 1.将用作生成的 action 类型的前缀的字符串;
+// 2.一个 “payload creator” 回调函数，它应该返回一个包含一些数据的 Promise，或者一个被拒绝的带有错误的 Promise;
 // Redux Toolkit 的 createAsyncThunk API 生成 thunk，为你自动 dispatch 那些 "start/success/failure" action。
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   const response = await client.get("/fakeApi/posts");
@@ -53,16 +62,16 @@ const postsSlice = createSlice({
     //     },
     //   },
 
-    postUpdated(state, action){
-        const { id, title, content, userId } = action.payload;
-        const existingPost = state.posts.find((post) => post.id === id);
-        if (existingPost) {
-          existingPost.title = title;
-          existingPost.content = content;
-          existingPost.user = userId;
-          existingPost.date = new Date().toISOString();
-        }
-      },
+    // postUpdated(state, action){
+    //     const { id, title, content, userId } = action.payload;
+    //     const existingPost = state.posts.find((post) => post.id === id);
+    //     if (existingPost) {
+    //       existingPost.title = title;
+    //       existingPost.content = content;
+    //       existingPost.user = userId;
+    //       existingPost.date = new Date().toISOString();
+    //     }
+    //   },
 
     reactionAdded(state, action) {
       const { postId, reaction } = action.payload;
@@ -76,21 +85,6 @@ const postsSlice = createSlice({
   // extraReducers 选项是一个接收名为 builder 的参数的函数。
   // builder 对象提供了一些方法，让我们可以定义额外的 case reducer，这些 reducer 将响应在 slice 之外定义的 action。
   // 我们将使用 builder.addCase(actionCreator, reducer) 来处理异步 thunk dispatch 的每个 action。
-  // extraReducers(builder) {
-  //   builder
-  //     .addCase(fetchPosts.pending, (state, action) => {
-  //       state.status = "loading";
-  //     })
-  //     .addCase(fetchPosts.fulfilled, (state, action) => {
-  //       state.status = "succeeded";
-  //       // Add any fetched posts to the array
-  //       state.posts = state.posts.concat(action.payload);
-  //     })
-  //     .addCase(fetchPosts.rejected, (state, action) => {
-  //       state.status = "failed";
-  //       state.error = action.error.message;
-  //     });
-  // },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPosts.pending, (state, action) => {
@@ -104,6 +98,9 @@ const postsSlice = createSlice({
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      }).addCase(addNewPost.fulfilled, (state, action) => {
+        // 我们可以直接将新的帖子对象添加到我们的帖子数组中
+        state.posts.push(action.payload);
       });
   },
 });
@@ -112,10 +109,10 @@ export const { postAdded, postUpdated, reactionAdded} = postsSlice.actions;
 
 export default postsSlice.reducer;
 
+// 编写选择器意味着需要理解和维护更多的代码。不要觉得你需要为状态的每个字段都编写选择器。
+// 建议开始时不使用任何选择器，稍后当你发现自己在应用程序代码的许多部分中查找相同值时添加一些选择器。
 // 可以编写可复用的“selector 选择器”函数来封装从 Redux 状态中读取数据的逻辑,选择器是一种函数，它接收 Redux state 作为参数，并返回一些数据
 export const selectAllPosts = (state) => state.posts.posts;
-export const selectPostsStatus = (state) => state.posts.status;
-export const selectPostsError = (state) => state.posts.error;
 export const selectPostById = (state, postId) => state.posts.posts.find((post) => post.id === postId);
 
 // 一：

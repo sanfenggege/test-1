@@ -5,7 +5,7 @@ import { Spinner } from "../../../components/Spinner";
 import { PostAuthor } from "./PostAuthor";
 import { TimeAgo } from "./TimeAgo";
 import { ReactionButtons } from "./ReactionButtons";
-import { selectAllPosts, fetchPosts, selectPostsStatus, selectPostsError } from "./postSlice";
+import { selectAllPosts, fetchPosts } from "./postSlice";
 
 const PostExcerpt = ({ post }) => {
   return (
@@ -28,8 +28,8 @@ const PostExcerpt = ({ post }) => {
 export const PostsList = () => {
   const dispatch = useDispatch();
   const posts = useSelector(selectAllPosts);
-  const postsStatus = useSelector(selectPostsStatus);
-  const postsError = useSelector(selectPostsError);
+  const postsStatus = useSelector((state) => state.posts.status);
+  const postsError = useSelector((state) => state.posts.error);
 
   useEffect(() => {
     if (postsStatus === "idle") {
