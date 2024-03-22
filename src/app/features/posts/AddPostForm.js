@@ -8,6 +8,7 @@ export const AddPostForm = () => {
   const [userId, setUserId] = useState("");
   const [addRequestStatus, setAddRequestStatus] = useState("idle");
   const [addError, setAddError] = useState("");
+
   const dispatch= useDispatch();
   const users = useSelector((state) => state.users);
 
@@ -29,6 +30,11 @@ export const AddPostForm = () => {
   // const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
   const canSave = [title, content, userId].every(Boolean) && addRequestStatus === "idle";
 
+  // unwrap: 
+  // Redux Toolkit 向返回的 Promise 添加了一个 .unwrap() 函数，它将返回一个新的 Promise，
+  // 这个 Promise 在 fulfilled 状态时返回实际的 action.payload 值，
+  // 或者在 “rejected” 状态下抛出错误。这让我们可以使用正常的“try/catch”逻辑处理组件中的成功和失败。 
+  // 因此，如果帖子创建成功，我们将清除输入字段以重置表单，如果失败，则将错误记录到控制台。
   const onSavePostClicked = async () => {
     if (canSave) {
       try {

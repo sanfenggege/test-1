@@ -7,14 +7,17 @@ import { store } from './app/store';
 
 import './index.css';
 
-import { fetchUsers } from "../src/app/features/users/usersSlice";
+import { fetchUsers } from "./app/features/users/usersSlice";
+import { fetchNotifications } from "./app/features/notifications/notificationsSlice";
 import { worker } from './api/server';
 
 // Wrap app rendering so we can wait for the mock API to initialize
 async function start() {
   // Start our mock API server
   await worker.start({ onUnhandledRequest: 'bypass' });
+  
   store.dispatch(fetchUsers());
+  store.dispatch(fetchNotifications());
   
   const root = createRoot(document.getElementById('root'));
 
