@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import { client } from "../../../api/client";
 
 const initialState = {
@@ -115,6 +115,15 @@ export default postsSlice.reducer;
 export const selectAllPosts = (state) => state.posts.posts;
 export const selectPostById = (state, postId) => state.posts.posts.find((post) => post.id === postId);
 
+// 记忆化的 selector(createSelector) 是提高 React + Redux 应用程序性能的宝贵工具，
+// 因为它们可以帮助我们避免不必要的重新渲染，并且如果输入数据没有更改，还可以避免执行潜在的复杂或昂贵的计算。
+// createSelector 将一个或多个“输入 selector ”函数作为参数，外加一个“输出 selector ”函数。 
+// 当我们调用 selectPostsByUser(state, userId) 时，createSelector 会将所有参数传递给每个输入 selector 。
+// 无论这些输入 selector 返回什么，都将成为输出 selector 的参数。
+export const selectPostsByUser = createSelector(
+  [selectAllPosts, (state, userId) => userId],
+  (posts, userId) => posts.filter((post) => post.user === userId)
+);
 // 一：
 // 使用 Middleware 处理异步逻辑:
 // 就其本身而言，Redux store 对异步逻辑一无所知。它只知道如何同步 dispatch action，通过调用 root reducer 函数更新状态，并通知 UI 某些事情发生了变化。任何异步都必须发生在 store 之外。

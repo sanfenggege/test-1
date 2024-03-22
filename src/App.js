@@ -3,8 +3,7 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect,
-  Link
+  Redirect
 } from 'react-router-dom';
 
 import { Navbar } from './app/Navbar';
@@ -14,6 +13,7 @@ import { SinglePostPage } from './app/features/posts/SinglePostPage';
 import { EditPostForm } from './app/features/posts/EditPostForm';
 import { UsersList } from './app/features/users/UsersList';
 import { UserPage } from './app/features/users/UserPage';
+import { NotificationsList } from './app/features/notifications/NotificationsList';
 
 function App() {
   return (
@@ -26,20 +26,16 @@ function App() {
             path="/"
             render={() => (
               <React.Fragment>
-                {/* todo: */}
-                {/* <AddPostForm/> */}
-                {/* <Link to="/addPost" className="button">
-                  App Post
-                </Link> */}
                 <PostsList />
               </React.Fragment>
             )}
           />
           <Route exact path="/posts/:postId" component={SinglePostPage} />
-          <Route exact path="/users/:userId" component={UserPage} />
           <Route exact path="/editPost/:postId" component={EditPostForm} />
           <Route exact path="/addPost" component={AddPostForm} />
           <Route exact path="/users" component={UsersList} />
+          <Route exact path="/users/:userId" component={UserPage} />
+          <Route exact path="/notifications" component={NotificationsList} />
           <Redirect to="/" />
         </Switch>
       </div>
