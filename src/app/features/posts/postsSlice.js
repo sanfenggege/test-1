@@ -1,12 +1,19 @@
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createSelector, createEntityAdapter } from "@reduxjs/toolkit";
 import { client } from "../../../api/client";
 
-const initialState = {
-  posts:[],
+// const initialState = {
+//   posts:[],
+//   status: "idle",
+//   error: null,
+// };
+const postsAdapter = createEntityAdapter({
+  sortComparer: (a, b) => b.date.localeCompare(a.date),
+});
+
+const initialState = postsAdapter.getInitialState({
   status: "idle",
   error: null,
-};
-
+});
 // {
 //   多个可能的状态枚举值
 //   status: 'idle' | 'loading' | 'succeeded' | 'failed',
@@ -69,20 +76,22 @@ const postsSlice = createSlice({
     //     },
     //   },
 
-    // postUpdated(state, action){
-    //     const { id, title, content, userId } = action.payload;
-    //     const existingPost = state.posts.find((post) => post.id === id);
-    //     if (existingPost) {
-    //       existingPost.title = title;
-    //       existingPost.content = content;
-    //       existingPost.user = userId;
-    //       existingPost.date = new Date().toISOString();
-    //     }
-    //   },
+    postUpdated(state, action){
+        const { id, title, content, userId } = action.payload;
+        // const existingPost = state.posts.find((post) => post.id === id);
+        const existingPost = state.entities[id];
+        if (existingPost) {
+          existingPost.title = title;
+          existingPost.content = content;
+          existingPost.user = userId;
+          existingPost.date = new Date().toISOString();
+        }
+      },
 
     reactionAdded(state, action) {
       const { postId, reaction } = action.payload;
-      const existingPost = state.posts.find((post) => post.id === postId);
+      // const existingPost = state.posts.find((post) => post.id === postId);
+      const existingPost = state.entities[postId];
       if (existingPost) {
         existingPost.reactions[reaction]++;
       }
@@ -94,23 +103,31 @@ const postsSlice = createSlice({
   // 我们将使用 builder.addCase(actionCreator, reducer) 来处理异步 thunk dispatch 的每个 action。
   extraReducers: (builder) => {
     builder
-      .addCase(fetchPosts.pending, (state, action) => {
-        state.status = "loading";
+      .addCase(
+        fetchPosts.pending, 
+        (state, action) => {
+          state.status = "loading";
       })
-      .addCase(fetchPosts.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        // Add any fetched posts to the array
-        state.posts = state.posts.concat(action.payload);
+      .addCase(
+        fetchPosts.fulfilled, 
+        (state, action) => {
+          state.status = "succeeded";
+          // Add any fetched posts to the array
+          // state.posts = state.posts.concat(action.payload);
+          postsAdapter.upsertMany(state, action.payload);
       })
-      .addCase(fetchPosts.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
+      .addCase(
+        fetchPosts.rejected, 
+        (state, action) => {
+          state.status = "failed";
+          state.error = action.error.message;
       });
     builder
-      .addCase(addNewPost.fulfilled, (state, action) => {
-        // 我们可以直接将新的帖子对象添加到我们的帖子数组中
-        state.posts.push(action.payload);
-      });
+      .addCase(
+        addNewPost.fulfilled, 
+        // (state, action) => {state.posts.push(action.payload);}
+        postsAdapter.addOne
+      );
   },
 });
 
@@ -118,11 +135,19 @@ export const { postAdded, postUpdated, reactionAdded} = postsSlice.actions;
 
 export default postsSlice.reducer;
 
+// Export the customized selectors for this adapter using `getSelectors`
+export const {
+  selectAll: selectAllPosts,
+  selectById: selectPostById,
+  selectIds: selectPostIds,
+  // Pass in a selector that returns the posts slice of state
+} = postsAdapter.getSelectors((state) => state.posts);
+
 // 编写选择器意味着需要理解和维护更多的代码。不要觉得你需要为状态的每个字段都编写选择器。
 // 建议开始时不使用任何选择器，稍后当你发现自己在应用程序代码的许多部分中查找相同值时添加一些选择器。
 // 可以编写可复用的“selector 选择器”函数来封装从 Redux 状态中读取数据的逻辑,选择器是一种函数，它接收 Redux state 作为参数，并返回一些数据
-export const selectAllPosts = (state) => state.posts.posts;
-export const selectPostById = (state, postId) => state.posts.posts.find((post) => post.id === postId);
+// export const selectAllPosts = (state) => state.posts.posts;
+// export const selectPostById = (state, postId) => state.posts.posts.find((post) => post.id === postId);
 
 // 记忆化的 selector(createSelector) 是提高 React + Redux 应用程序性能的宝贵工具，
 // 因为它们可以帮助我们避免不必要的重新渲染，并且如果输入数据没有更改，还可以避免执行潜在的复杂或昂贵的计算。
