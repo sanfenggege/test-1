@@ -12,7 +12,7 @@ export const NotificationsList = () => {
 
   useLayoutEffect(() => {
     dispatch(allNotificationsRead());
-  },[]);
+  });
 
   const renderedNotifications = notifications.map((notification) => {
     const date = parseISO(notification.date);
@@ -22,7 +22,7 @@ export const NotificationsList = () => {
     };
 
     const notificationClassName = classnames("notification", {
-      new: notification.isNew,
+      new: notification.hasOwnProperty('isNew')? notification.isNew : true
     });
 
     return (

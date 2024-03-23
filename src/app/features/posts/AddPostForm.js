@@ -16,20 +16,7 @@ export const AddPostForm = () => {
   const onContentChanged = (e) => setContent(e.target.value);
   const onAuthorChanged = (e) => setUserId(e.target.value);
   
-  // const onSavePostClicked = ()=>{
-  //   if(title && content){
-  //       dispatch(postAdded(title, content, userId));
-  //       setTitle("");
-  //       setContent("");
-  //       setUserId("");
-  //   } else {
-  //       alert('Please add title and content!');
-  //   }
-  // }
-
-  // const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
   const canSave = [title, content, userId].every(Boolean) && addRequestStatus === "idle";
-
   // unwrap: 
   // Redux Toolkit 向返回的 Promise 添加了一个 .unwrap() 函数，它将返回一个新的 Promise，
   // 这个 Promise 在 fulfilled 状态时返回实际的 action.payload 值，

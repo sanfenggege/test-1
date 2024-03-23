@@ -37,7 +37,14 @@ const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
-    // old postAdded:
+    // FSA 公约规定：
+    // 如果 action 对象需要包含任何实际数据，则数据值应始终放在 action.payload 中
+    // action 还可以具有包含额外描述性数据的 action.meta 字段
+    // action 也可以具有包含错误信息的 action.error 字段
+    
+    // old postAdded: createSlice 允许我们通过向 reducer 添加“准备回调”函数来处理这些情况。
+    // 我们可以传递一个具有名为 reducer 和 prepare 这两个函数的对象。当我们调用生成的 action creator 时，“准备回调”函数会使用传入的任何参数被调用。
+    // 然后它应该创建并返回一个具有 payload 字段（或者，可选的 meta 和 error 字段）的对象，符合 Flux Standard Action 约定。
     // postAdded: {
     //     reducer(state, action) {
     //       state.posts.push(action.payload);
@@ -98,7 +105,9 @@ const postsSlice = createSlice({
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
-      }).addCase(addNewPost.fulfilled, (state, action) => {
+      });
+    builder
+      .addCase(addNewPost.fulfilled, (state, action) => {
         // 我们可以直接将新的帖子对象添加到我们的帖子数组中
         state.posts.push(action.payload);
       });
@@ -124,6 +133,7 @@ export const selectPostsByUser = createSelector(
   [selectAllPosts, (state, userId) => userId],
   (posts, userId) => posts.filter((post) => post.user === userId)
 );
+
 // 一：
 // 使用 Middleware 处理异步逻辑:
 // 就其本身而言，Redux store 对异步逻辑一无所知。它只知道如何同步 dispatch action，通过调用 root reducer 函数更新状态，并通知 UI 某些事情发生了变化。任何异步都必须发生在 store 之外。
