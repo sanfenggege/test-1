@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewPost } from "./postSlice";
+import { addNewPost } from "./postsSlice";
+import { selectAllUsers } from "../users/usersSlice";
 
 export const AddPostForm = () => {
   const [title, setTitle] = useState("");
@@ -10,26 +11,13 @@ export const AddPostForm = () => {
   const [addError, setAddError] = useState("");
 
   const dispatch= useDispatch();
-  const users = useSelector((state) => state.users);
+  const users = useSelector((state) => selectAllUsers(state));
 
   const onTitleChanged = (e) => setTitle(e.target.value);
   const onContentChanged = (e) => setContent(e.target.value);
   const onAuthorChanged = (e) => setUserId(e.target.value);
   
-  // const onSavePostClicked = ()=>{
-  //   if(title && content){
-  //       dispatch(postAdded(title, content, userId));
-  //       setTitle("");
-  //       setContent("");
-  //       setUserId("");
-  //   } else {
-  //       alert('Please add title and content!');
-  //   }
-  // }
-
-  // const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
   const canSave = [title, content, userId].every(Boolean) && addRequestStatus === "idle";
-
   // unwrap: 
   // Redux Toolkit 向返回的 Promise 添加了一个 .unwrap() 函数，它将返回一个新的 Promise，
   // 这个 Promise 在 fulfilled 状态时返回实际的 action.payload 值，

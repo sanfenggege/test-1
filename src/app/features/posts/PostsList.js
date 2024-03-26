@@ -5,9 +5,16 @@ import { Spinner } from "../../../components/Spinner";
 import { PostAuthor } from "./PostAuthor";
 import { TimeAgo } from "./TimeAgo";
 import { ReactionButtons } from "./ReactionButtons";
-import { selectAllPosts, fetchPosts } from "./postSlice";
+import {
+  selectAllPosts,
+  fetchPosts,
+  selectPostIds,
+  selectPostById,
+} from "./postsSlice";
 
-let PostExcerpt = ({ post }) => {
+let PostExcerpt = ({ postId }) => {
+  const post = useSelector((state) => selectPostById(state, postId));
+
   return (
     <article className="post-excerpt" key={post.id}>
       <h3>{post.title}</h3>
@@ -32,6 +39,7 @@ export const PostsList = () => {
   const posts = useSelector(selectAllPosts);
   const postsStatus = useSelector((state) => state.posts.status);
   const postsError = useSelector((state) => state.posts.error);
+  const orderedPostIds = useSelector(selectPostIds);
 
   useEffect(() => {
     if (postsStatus === "idle") {
@@ -43,9 +51,8 @@ export const PostsList = () => {
   if (postsStatus === "loading") {
     content = <Spinner text="Loading..." />;
   } else if (postsStatus === "succeeded") {
-    const orderedPosts = posts.slice().sort((a, b) => b.date.localeCompare(a.date));
-    content = orderedPosts.map((post,index) => (
-      <PostExcerpt key={post.id + index} post={post} />
+    content = orderedPostIds.map((postId) => (
+      <PostExcerpt key={postId} postId={postId} />
     ));
   } else if (postsStatus === "failed") {
     content = <div>{postsError}</div>;
