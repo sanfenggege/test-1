@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { postUpdated, selectPostById } from "./postsSlice";
+import {selectAllUsers } from "../users/usersSlice"; 
 
 export const EditPostForm = ({ match }) => {
   const { postId } = match.params;
   
-  const users = useSelector((state) => state.users);
+  const users = useSelector(selectAllUsers);
 
   const post = useSelector((state) => selectPostById(state, postId));
 

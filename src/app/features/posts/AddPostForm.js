@@ -11,7 +11,7 @@ export const AddPostForm = () => {
   const [addError, setAddError] = useState("");
 
   const dispatch= useDispatch();
-  const users = useSelector((state) => selectAllUsers(state));
+  const users = useSelector(selectAllUsers);
 
   const onTitleChanged = (e) => setTitle(e.target.value);
   const onContentChanged = (e) => setContent(e.target.value);
